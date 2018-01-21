@@ -17,7 +17,7 @@
 
 			</div>
 			<div class="userControls">
-				<input id="userInput" type="text" name="" value="" class="userControl" onkeydown="keyPress(event)">
+				<input id="userInput" type="text" name="" value="" class="userControl" onkeyup="textEntered(event)">
 				<div id="timer" class="userControl">
 					1:00
 				</div>
@@ -26,7 +26,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="container" id="stats">
+		<div class="container" id="stats" style="display: none;">
 			<span>160 WPM</span>
 			<hr>
 			<table id="resTable">

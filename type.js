@@ -6,12 +6,16 @@ var testStates = {
 var highlightModes = {
 	HIGHLIGHT_NORMAL: 0,
 	HIGHLIGHT_WRONG: 1,
+	CORRECT: 2,
+	WRONG: 3
 };
 
 var keys = {
-	LOWER_A: 65,
-	LOWER_Z: 90,
-	ESC: 32
+	A_KEY: 65,
+	Z_KEY: 90,
+	ESC: 27,
+	BACK_SPACE: 8,
+	SPACE_BAR: 32
 };
 
 var words = ["I", "snuck", "down", "there", "evenings", "he", "worked", "at", "the", "sawmill",
@@ -27,13 +31,13 @@ var words = ["I", "snuck", "down", "there", "evenings", "he", "worked", "at", "t
 
 var test = {
 	currWord: 0,
-	currChar: 0,
+	currChar: -1,
 	userText: document.getElementById("fullText"),
 	userInput: document.getElementById("userInput"),
 	timerElement: document.getElementById("timer"),
 	state: testStates.INACTIVE,
 	t: 0,
-	maxTime: 10,
+	maxTime: 60,
 	wordsGottenRight: 0,
 	wordsGottenWrong: 0,
 	wordsTotal: 0,
@@ -41,7 +45,7 @@ var test = {
 		if(this.maxTime <= 5){
 			this.timerElement.style.color = "red";
 		}
-		this.timerElement.innerHTML = "0:"+ --this.maxTime;
+		this.timerElement.innerHTML = --this.maxTime < 10?"0:0"+this.maxTime:"0:"+ this.maxTime;
 		if(this.maxTime <= 0){
 			restartTest();
 		}
@@ -65,16 +69,67 @@ function restartTest(){
 		test.timerElement.style.color = "black";
 	}
 }
+//pressed key is actually char, not the keycode
+function textEntered(event){
+	if(test.state != testStates.RUNNING){
+		initTest();
+	}
+	if((event.keyCode >= keys.A_KEY && event.keyCode <= keys.Z_KEY)
+	|| event.keyCode == keys.SPACE_BAR){
+		let pressedKey = getInputChar();
+		if((pressedKey > 'a' && pressedKey < 'z') || (pressedKey > 'A' && pressedKey < 'Z')){
+			test.currChar++;
+			processUserLetter(pressedKey);
+		}
+		//user finished typing the word
+		else if(pressedKey == ' '){
+			test.userInput.value = "";
+			let currHighLight = getCurrWordHighLight(test.currWord);
+			let futurePrevHighlight;
+			if(currHighLight === highlightModes.HIGHLIGHT_WRONG){
+				futurePrevHighlight = highlightModes.WRONG;
+			}
+			else{
+				futurePrevHighlight = highlightModes.CORRECT;
+			}
+			changeWordHighLight(test.currWord,futurePrevHighlight);
+			changeWordHighLight(test.currWord+1, highlightModes.HIGHLIGHT_NORMAL);
+			test.currWord++;
+			test.currChar = -1;
+		}
+	}
+	else if(event.keyCode == keys.BACK_SPACE){
+			if(test.currChar>=0){
+				test.currChar--;
+				processUserLetter(test.userInput.value.charAt(test.userInput.value.length-1));
+
+			}
+		}
+
+
+}
+function processUserLetter(pressedKey){
+	if(pressedKey !== words[test.currWord].charAt(test.currChar)){
+		changeWordHighLight(test.currWord,highlightModes.HIGHLIGHT_WRONG);
+	}
+	else{
+		changeWordHighLight(test.currWord, highlightModes.HIGHLIGHT_NORMAL);
+	}
+}
 
 function keyPress(event){
 	if(test.state != testStates.RUNNING){
 		initTest();
 	}
 		let pressedKey = event.keyCode;
-		//get last input char from input tag
+
 		if(pressedKey > keys.LOWER_A && pressedKey < keys.LOWER_Z){
-			if(String.fromCharCode(event.which) !== words[test.currWord].charAt(test.currChar)){
+			var chr = getInputChar();
+			if(chr !== words[test.currWord].charAt(test.currChar)){
 				changeWordHighLight(test.currWord,highlightModes.HIGHLIGHT_WRONG);
+			}
+			else{
+				changeWordHighLight(test.currWord, highlightModes.HIGHLIGHT_NORMAL);
 			}
 		}
 		else if(pressedKey == 32){
@@ -85,13 +140,39 @@ function keyPress(event){
 
 }
 
-function changeWordHighLight(i, mode){
+function getInputChar(){
+	let inputStr = test.userInput.value;
+	return inputStr.charAt(inputStr.length-1);
+}
+function getCurrWordHighLight(i){
 	let reqWordElement = document.getElementById(i);
-	if(mode == highlightModes.HIGHLIGHT_WRONG){
-		reqWordElement.class = "highlightWrong";
+	let _className = reqWordElement.className;
+	if(_className.indexOf("Wrong") != -1){
+		return highlightModes.HIGHLIGHT_WRONG;
 	}
 	else{
-		reqWordElement.class = "highlight";
+		return highlightModes.HIGHLIGHT_NORMAL;
+	}
+}
+function changeWordHighLight(i, mode){
+	let reqWordElement = document.getElementById(i);
+	switch(mode){
+		case highlightModes.HIGHLIGHT_WRONG:{
+			reqWordElement.className = "highlightWrong";
+			break;
+		}
+		case highlightModes.HIGHLIGHT_NORMAL:{
+			reqWordElement.className = "highlight";
+			break;
+		}
+		case highlightModes.WRONG:{
+			reqWordElement.className = "wrong";
+			break;
+		}
+		case highlightModes.CORRECT:{
+			reqWordElement.className = "correct";
+			break;
+		}
 	}
 }
 
