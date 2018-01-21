@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Typing test</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body onload="prepText()">
+		<div class="container">
+			English typing test
+		</div>
+		<div class="container">
+			<div class="visibleWords">
+				<div id="fullText" class="full" style="top: -1px; display: block; position: relative;">
+
+				</div>
+
+			</div>
+			<div class="userControls">
+				<input id="userInput" type="text" name="" value="" class="userControl" onkeydown="keyPress(event)">
+				<div id="timer" class="userControl">
+					1:00
+				</div>
+				<button onclick="restartTest()" id="restart" class="userControl">
+					Restart
+				</button>
+			</div>
+		</div>
+		<div class="container" id="stats">
+			<span>160 WPM</span>
+			<hr>
+			<table id="resTable">
+				<tbody>
+					<tr>
+						<td class="correctRes">Correct</td>
+						<td id="correctNum">100</td>
+					</tr>
+					<tr>
+						<td class="wrongRes">Wrong</td>
+						<td id="wrongNum">100</td>
+					</tr>
+					<tr>
+						<td>Total</td>
+						<td id="totalNum">100</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<script type="text/javascript" src="type.js">
+
+		</script>
+	</body>
+</html>
