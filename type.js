@@ -69,6 +69,7 @@ function restartTest(){
 		test.timerElement.style.color = "black";
 	}
 }
+
 //pressed key is actually char, not the keycode
 function textEntered(event){
 	if(test.state != testStates.RUNNING){
@@ -96,6 +97,9 @@ function textEntered(event){
 			changeWordHighLight(test.currWord+1, highlightModes.HIGHLIGHT_NORMAL);
 			test.currWord++;
 			test.currChar = -1;
+			if(isLineBreak()){
+				scrollTextUp();
+			}
 		}
 	}
 	else if(event.keyCode == keys.BACK_SPACE){
@@ -108,6 +112,7 @@ function textEntered(event){
 
 
 }
+
 function processUserLetter(pressedKey){
 	if(pressedKey !== words[test.currWord].charAt(test.currChar)){
 		changeWordHighLight(test.currWord,highlightModes.HIGHLIGHT_WRONG);
@@ -117,33 +122,26 @@ function processUserLetter(pressedKey){
 	}
 }
 
-function keyPress(event){
-	if(test.state != testStates.RUNNING){
-		initTest();
+function scrollTextUp(){
+	let currentOffset = parseInt(test.userText.style.top);
+	currentOffset-=72; //fixed value for now
+	test.userText.style.top = currentOffset + "px";
+}
+
+function isLineBreak(){
+	let thisWordElementOffsets = document.getElementById(test.currWord-1).getBoundingClientRect();
+	let nextWordElementOffsets = document.getElementById(test.currWord).getBoundingClientRect();
+	if(nextWordElementOffsets.top > thisWordElementOffsets.top){
+		return true;
 	}
-		let pressedKey = event.keyCode;
-
-		if(pressedKey > keys.LOWER_A && pressedKey < keys.LOWER_Z){
-			var chr = getInputChar();
-			if(chr !== words[test.currWord].charAt(test.currChar)){
-				changeWordHighLight(test.currWord,highlightModes.HIGHLIGHT_WRONG);
-			}
-			else{
-				changeWordHighLight(test.currWord, highlightModes.HIGHLIGHT_NORMAL);
-			}
-		}
-		else if(pressedKey == 32){
-			test.userInput.value = "";
-			test.currWord++;
-			changeWordHighLight(test.currWord,highlightModes.HIGHLIGHT_NORMAL);
-		}
-
+	return false;
 }
 
 function getInputChar(){
 	let inputStr = test.userInput.value;
 	return inputStr.charAt(inputStr.length-1);
 }
+
 function getCurrWordHighLight(i){
 	let reqWordElement = document.getElementById(i);
 	let _className = reqWordElement.className;
@@ -154,6 +152,7 @@ function getCurrWordHighLight(i){
 		return highlightModes.HIGHLIGHT_NORMAL;
 	}
 }
+
 function changeWordHighLight(i, mode){
 	let reqWordElement = document.getElementById(i);
 	switch(mode){
@@ -177,10 +176,12 @@ function changeWordHighLight(i, mode){
 }
 
 function initTest(){
+
 	test.state = testStates.RUNNING;
 	test.updateTime();
 	test.t = setTimeout(function(){initTest()},1000);
 }
+
 function prepText(){
 	let textLen = words.length;
 	for(x=0;x<textLen;x++){
@@ -192,5 +193,4 @@ function prepText(){
 		}
 		test.userText.appendChild(word);
 	}
-
 }

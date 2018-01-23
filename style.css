@@ -41,9 +41,17 @@ td.correctRes{
 td.wrongRes{
 	color: red;
 }
+div#fullText{
+	overflow: hidden;
+	clear: both;
+}
 div#fullText span{
 	margin: 10px;
 	font-size: .7em;
+}
+span{
+	float: left;
+	display: inline-block;
 }
 span.highlight{
 	background-color: #ccc;
